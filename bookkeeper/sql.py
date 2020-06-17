@@ -4,7 +4,6 @@ from sqlalchemy.ext.declarative import declarative_base
 
 from typing import Any
 
-
 Base = declarative_base()  # type: Any
 
 
