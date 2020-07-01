@@ -74,6 +74,26 @@ def get_data_tuples_after_ts(session: Session, node_name: str, sensor_name: str,
     return tuples
 
 
+def get_data_tuples_between_t1_t2(session: Session, node_name: str, sensor_name: str, t1: float, t2: float) -> List[Tuple[float, float]]:
+    """Returns the list of all data points for the given node/sensor between the given timestamps"""
+    node_id: int = get_node_id(session, node_name)
+    if node_id == -1:
+        return []
+    sensor_id: int = get_sensor_id(session, sensor_name, node_name)
+    if sensor_id == -1:
+        return []
+    values: list = session.\
+        query(Measurement.value, Measurement.timestamp).\
+        filter_by(node_id=node_id, sensor_id=sensor_id).\
+        filter(Measurement.timestamp >= t1).\
+        filter(Measurement.timestamp <= t2).\
+        all()
+    tuples: List[Tuple[float, float]] = [
+        (e.timestamp, e.value) for e in values]
+    tuples.sort(key=itemgetter(0))
+    return tuples
+
+
 def get_data_tuples(session: Session, node_name: str, sensor_name: str) -> List[Tuple[float, float]]:
     """Returns the list of all data points for the given node/sensor"""
     tuples: list = get_data_tuples_after_ts(session, node_name, sensor_name, 0)
